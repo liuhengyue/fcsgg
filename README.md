@@ -18,7 +18,7 @@ The project is built upon [Detectron2](https://github.com/facebookresearch/detec
 git clone url fcsgg
 cd fcsgg
 
-# init and pull the Detectron2 submodule
+# init and pull the submodules
 git submodule init 
 git submodule update
 pip install -r requirements.txt
