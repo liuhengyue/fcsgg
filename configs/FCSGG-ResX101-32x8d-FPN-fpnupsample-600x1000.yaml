@@ -1,0 +1,55 @@
+MODEL:
+  PIXEL_STD: [57.375, 57.120, 58.395]
+  META_ARCHITECTURE: "CenterNet"
+  WEIGHTS: "detectron2://COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x/139173657/model_final_68b088.pkl"
+  BACKBONE:
+    NAME: "build_resnet_fpn_backbone"
+    FREEZE_AT: 2
+  RESNETS:
+    OUT_FEATURES: ["res2", "res3", "res4", "res5"]
+    STRIDE_IN_1X1: False  # this is a C2 model
+    NUM_GROUPS: 32
+    WIDTH_PER_GROUP: 8
+    DEPTH: 101
+    NORM: "FrozenBN" # "SyncBN" "FrozenBN"
+  FPN:
+    IN_FEATURES: ["res2", "res3", "res4", "res5"]
+  NECKS:
+    ENABLED: True
+    NAME: FPNUpSampleNeck
+    IN_FEATURES: ["p2", "p3", "p4", "p5"]
+    NORM: "SyncBN"
+  HEADS:
+    NAME: CenternetRelationHeads
+    NUM_CLASSES: 150
+    IN_FEATURES: ["fpn_fused"]
+    LOSS:
+      HEATMAP_LOSS_TYPE: "efficient_focal_loss"
+      WH_WEIGHT: 0.1
+DATASETS:
+  TRAIN: ("vg_train",)
+#  VAL: ("vg_val",)
+  TEST: ("vg_test",)
+DATALOADER:
+  NUM_WORKERS: 4
+SOLVER:
+  CLIP_GRADIENTS:
+    ENABLED: True
+  IMS_PER_BATCH: 16
+  BASE_LR: 0.0001
+  WARMUP_FACTOR: 0.01
+  WARMUP_ITERS: 0
+  STEPS: (50000, 70000)
+  MAX_ITER: 90000
+  CHECKPOINT_PERIOD: 5000
+INPUT:
+  LOAD_RELATIONS: True
+  MIN_SIZE_TRAIN: (600,)
+  MAX_SIZE_TRAIN: 1000
+  MIN_SIZE_TEST: 600
+  MAX_SIZE_TEST: 1000
+#RELATION:
+#  RELATION_ON: False
+OUTPUT_DIR: "./output/vg/fcsgg_resx101_32x8d_fpn_fpnupsample_600x1000"
+SEED: 2020
+VERSION: 2

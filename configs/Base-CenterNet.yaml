@@ -1,0 +1,28 @@
+MODEL:
+  META_ARCHITECTURE: "CenterNet"
+  WEIGHTS: "detectron2://ImageNetPretrained/MSRA/R-50.pkl"
+  BACKBONE:
+    NAME: "build_resnet_backbone"
+  RESNETS:
+    DEPTH: 50
+#    RES2_OUT_CHANNELS: 64 # must set 64 for R18/34
+    OUT_FEATURES: ["res5"]
+  HEADS:
+    NUM_CLASSES: 150
+DATASETS:
+  TRAIN: ("vg_train",)
+#  VAL: ("vg_val",)
+  TEST: ("vg_test",)
+SOLVER:
+  IMS_PER_BATCH: 12
+  BASE_LR: 0.002
+  WARMUP_FACTOR: 0.002
+  WARMUP_ITERS: 500
+  STEPS: (60000, 80000)
+  MAX_ITER: 90000
+  CHECKPOINT_PERIOD: 5000
+INPUT:
+  MIN_SIZE_TRAIN: (800,) #(640, 672, 704, 736, 768, 800)
+OUTPUT_DIR: "./output/vg"
+SEED: 2020
+VERSION: 2

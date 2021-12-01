@@ -1,0 +1,57 @@
+_BASE_: "FCSGG-Base.yaml"
+MODEL:
+  META_ARCHITECTURE: "CenterNet"
+  WEIGHTS: "detectron2://COCO-Detection/faster_rcnn_R_50_FPN_3x/137849458/model_final_280758.pkl"
+  BACKBONE:
+    NAME: "build_resnet_dual_bifpn_backbone"
+    FREEZE_AT: -1
+    FREEZE_ALL: False
+  FPN:
+    IN_FEATURES: ["res2", "res3", "res4", "res5"]
+    REPEAT: 1
+    NORM: SyncBN
+  RESNETS:
+    DEPTH: 50
+    OUT_FEATURES: ["res2", "res3", "res4", "res5"]
+    NORM: "SyncBN" # "SyncBN" "FrozenBN"
+  HEADS:
+    NAME: MultiScaleSwitchNormDualHeads
+    SHARED: True
+    CONV_DIM: 64
+    NUM_CONV: 4
+    IN_FEATURES: ["p2_0", "p3_0", "p4_0", "p5_0", "p2_1", "p3_1", "p4_1", "p5_1"]
+    NUM_CLASSES: 150
+    NORM: "SyncBN"
+    OUTPUT_STRIDES: [4, 8, 16, 32]
+    FREEZE: []#["cls_head", "wh_head", "reg_head", "raf_head"]
+    RAF:
+      KERNEL_SIZE: 3
+      DILATION: 1
+      LAST_DEFORM_ON: False
+      LOSS_TYPE: ("l2", "all", "normal", 1)
+INPUT:
+  CROP:
+    ENABLED: True
+    SIZE: [0.8, 0.8]
+  MIN_SIZE_TRAIN: (256, 320, 384, 448, 512)
+  MAX_SIZE_TRAIN: 512
+  MIN_SIZE_TEST: 512
+  MAX_SIZE_TEST: 512
+  ADD_IGNORE: False
+  CENTER_GAUSSIAN_IOU_MIN_OVERLAPS: [0.5, 0.5, 0.5, 0.5]
+  GT_SCALE_AWARE: True
+RELATION:
+  RELATION_ON: True
+  USE_GT_BOX: False
+  USE_GT_OBJECT_LABEL: False
+SOLVER:
+  IMS_PER_BATCH: 24
+  BASE_LR: 0.001 # linear scale these
+  WARMUP_FACTOR: 0.005
+  WARMUP_ITERS: 200
+  STEPS: (80000, 120000) #(20000, 50000) # linear scale these
+  MAX_ITER: 160000 #90000 # linear scale these
+DATASETS:
+  TEST: ("vg_minitest",)
+OUTPUT_DIR: "./output/vg/fcsgg_res50_dualbifpnp2p5_syncbn_multiscalehead_ms"
+

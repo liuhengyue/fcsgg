@@ -1,0 +1,51 @@
+_BASE_: "FCSGG-Base.yaml"
+MODEL:
+  META_ARCHITECTURE: "CenterNet"
+  HRNET:
+    WEIGHTS: "output/FasterR-CNN-HR32-3x.pth"
+    FINAL_STAGE_MULTISCALE: True
+    NORM: "SyncBN"
+    UPSAMPLE_MODE: "bilinear"
+  BACKBONE:
+    NAME: "build_hrnet_backbone"
+    FREEZE_ALL: False
+  NECKS:
+    ENABLED: True
+    NAME: ConcatNeck
+    UPSAMPLE_MODE: "bilinear"
+    IN_FEATURES: ["hr2", "hr3", "hr4", "hr5"]
+  HEADS:
+    NAME: CenternetRelationHeads
+    CONV_DIM: 256
+    NUM_CONV: 4
+    NORM: "SyncBN"
+    IN_FEATURES: ["cat"]
+    OUTPUT_STRIDES: [4]
+    LOSS:
+      WH_WEIGHT: 0.1
+    RAF:
+      DOWN_SAMPLE_RATIO: 1
+      SPLIT: True
+      CONV_DIM: 256
+      CONV_DIMS: [256, 256, 256, 256]
+      NUM_CONV: 4
+      LOSS_TYPE: ("l1", "pos", "normal", 1)
+RELATION:
+  RELATION_ON: True
+  USE_GT_BOX: False
+  USE_GT_OBJECT_LABEL: False
+INPUT:
+  GT_SCALE_AWARE: False
+  RAF_TYPE: "point"
+  CENTER_GAUSSIAN_IOU_MIN_OVERLAPS: [0.5]
+SOLVER:
+  IMS_PER_BATCH: 60 # linear scale these
+  BASE_LR: 0.002 # linear scale these
+  WARMUP_FACTOR: 0.001
+  WARMUP_ITERS: 1000
+  STEPS: (40000, 80000) #(40000, 80000) # linear scale these
+  MAX_ITER: 90000 # linear scale these
+  CHECKPOINT_PERIOD: 5000
+#DATASETS:
+#  TEST: ("vg_minitest",)
+OUTPUT_DIR: "./output/vg/fcsgg_hrnet_w32_point_512x512_ms"

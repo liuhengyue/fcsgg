@@ -1,0 +1,62 @@
+_BASE_: "FCSGG-Base.yaml"
+MODEL:
+  SIZE_DIVISIBILITY: 64
+  META_ARCHITECTURE: "CenterNet"
+  HRNET:
+    WEIGHTS: "output/FasterR-CNN-HR48-2x.pth"
+    FINAL_STAGE_MULTISCALE: True
+    NORM: "SyncBN"
+    UPSAMPLE_MODE: "bilinear"
+    STAGE2:
+      NUM_CHANNELS: [ 48, 96 ]
+    STAGE3:
+      NUM_CHANNELS: [ 48, 96, 192 ]
+    STAGE4:
+      NUM_CHANNELS: [ 48, 96, 192, 384 ]
+  BACKBONE:
+    NAME: "build_hrnet_backbone"
+    FREEZE_ALL: False
+  NECKS:
+    ENABLED: True
+    NAME: HRFPN
+    IN_FEATURES: [ "hr2", "hr3", "hr4", "hr5" ]
+    OUT_CHANNELS: [ 256 ]
+    UPSAMPLE_MODE: "bilinear"
+    NORM: "SyncBN"
+  HEADS:
+#    FREEZE: ["cls_head", "wh_head", "reg_head"]
+    NAME: MultiScaleSwitchNormHeads
+    CONV_DIM: 256
+    NUM_CONV: 4
+    BN_MOMENTUM: 0.01
+    NORM: "SyncBN"
+    IN_FEATURES: [ "p2", "p3", "p4", "p5" ]
+    OUTPUT_STRIDES: [ 4, 8, 16, 32 ]
+    LOSS:
+      WH_WEIGHT: 0.1
+    RAF:
+      DOWN_SAMPLE_RATIO: 2
+      CONV_DIM: 512
+      NUM_CONV: 4
+RELATION:
+  RELATION_ON: True
+  USE_GT_BOX: False
+  USE_GT_OBJECT_LABEL: False
+INPUT:
+  GT_SCALE_AWARE: True
+  GT_REGRESSION_SCALE_AWARE: False
+  CENTER_GAUSSIAN_IOU_MIN_OVERLAPS: [0.5, 0.5, 0.5, 0.5]
+  MIN_SIZE_TRAIN: (640, 672, 704, 736, 768, 800)
+  MAX_SIZE_TRAIN: 1024
+  MIN_SIZE_TEST: 640
+  MAX_SIZE_TEST: 1024
+SOLVER:
+  IMS_PER_BATCH: 12 # linear scale these
+  BASE_LR: 0.0002 # linear scale these
+  WARMUP_FACTOR: 0.01
+  WARMUP_ITERS: 100
+  STEPS: (80000, 120000) #(40000, 80000) # linear scale these
+  MAX_ITER: 180000 # linear scale these
+DATASETS:
+  TEST: ("vg_minitrain",)
+OUTPUT_DIR: "./output/vg/fcsgg_hrnet_w48_hrfpn_600x1000_ms"

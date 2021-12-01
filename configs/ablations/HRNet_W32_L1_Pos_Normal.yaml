@@ -1,0 +1,18 @@
+_BASE_: "../FCSGG_HRNet_W32_2xDownRAF_512x512_MS.yaml"
+MODEL:
+  HEADS:
+    RAF:
+      LOSS_TYPE: ("l1", "pos", "normal", 1)
+RELATION:
+  RELATION_ON: True
+  USE_GT_BOX: False
+  USE_GT_OBJECT_LABEL: True
+SOLVER:
+  IMS_PER_BATCH: 16 # linear scale these
+  BASE_LR: 0.001 # linear scale these
+  WARMUP_FACTOR: 0.001
+  WARMUP_ITERS: 1000
+  STEPS: (60000,) #(40000, 80000) # linear scale these
+  MAX_ITER: 120000 # linear scale these
+  CHECKPOINT_PERIOD: 5000
+OUTPUT_DIR: "./output/vg/ablations/hrnet_w32_l1_pos_normal"

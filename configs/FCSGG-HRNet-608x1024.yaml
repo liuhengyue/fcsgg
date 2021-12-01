@@ -1,0 +1,22 @@
+_BASE_: "FCSGG-Base.yaml"
+MODEL:
+  META_ARCHITECTURE: "CenterNet"
+  WEIGHTS: ""
+  BACKBONE:
+    NAME: "build_hrnet_backbone"
+  NECKS:
+    ENABLED: False
+  HEADS:
+    NAME: CenternetRelationHeads
+    IN_FEATURES: ["p1"]
+SOLVER:
+  CLIP_GRADIENTS:
+    ENABLED: True
+  IMS_PER_BATCH: 4
+  BASE_LR: 0.005
+  WARMUP_FACTOR: 0.01
+  WARMUP_ITERS: 100
+  STEPS: (40000, 80000)
+  MAX_ITER: 90000
+  CHECKPOINT_PERIOD: 5000
+OUTPUT_DIR: "./output/vg/fcsgg_hrnet32_608x1024"

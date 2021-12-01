@@ -1,0 +1,63 @@
+MODEL:
+  META_ARCHITECTURE: "CenterNet"
+  WEIGHTS: ""
+  BACKBONE:
+    NAME: "build_resnet_fpn_p2_backbone"
+    FREEZE_AT: 2
+    FREEZE_ALL: False
+  RESNETS:
+    DEPTH: 50
+    OUT_FEATURES: ["res2", "res3", "res4", "res5"]
+    NORM: "FrozenBN" # "SyncBN" "FrozenBN"
+  FPN:
+    IN_FEATURES: ["res2", "res3", "res4", "res5"]
+  NECKS:
+    ENABLED: False
+  HEADS:
+    NAME: CenternetRelationHeads
+    IN_FEATURES: ["p2"]
+    CONV_DIM: 64
+    NUM_CONV: 4
+    NUM_STAGES: 1
+    NORM: "SyncBN"
+    FREEZE: []
+    RAF:
+      KERNEL_SIZE: 3
+      DILATION: 1
+      LAST_DEFORM_ON: False
+    NUM_CLASSES: 150
+    LOSS:
+      HEATMAP_LOSS_TYPE: "efficient_focal_loss"
+      WH_WEIGHT: 0.1
+      RAF_WEIGHT: 1.0
+DATASETS:
+  TRAIN: ("vg_train",)
+#  VAL: ("vg_val",)
+  TEST: ("vg_test",)
+DATALOADER:
+  NUM_WORKERS: 4
+SOLVER:
+  IMS_PER_BATCH: 64 # linear scale these
+  BASE_LR: 0.01 # linear scale these
+  WARMUP_FACTOR: 0.005
+  WARMUP_ITERS: 200
+  STEPS: (60000, 80000) # linear scale these
+  MAX_ITER: 90000 # linear scale these
+  CHECKPOINT_PERIOD: 5000
+INPUT:
+  CROP:
+    ENABLED: True
+    SIZE: [ 0.5, 0.5 ]
+  MIN_SIZE_TRAIN: (256, 320, 384, 448, 512)
+  MAX_SIZE_TRAIN: 512
+  MIN_SIZE_TEST: 512
+  MAX_SIZE_TEST: 512
+  ADD_IGNORE: False
+  CENTER_GAUSSIAN_IOU_MIN_OVERLAPS: [0.5]
+RELATION:
+  RELATION_ON: True
+  USE_GT_BOX: False
+  USE_GT_OBJECT_LABEL: False
+OUTPUT_DIR: "./output/vg/fcsgg_base"
+SEED: 2020
+VERSION: 2

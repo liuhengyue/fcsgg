@@ -1,0 +1,44 @@
+_BASE_: "Quick-FCSGG-Base.yaml"
+MODEL:
+  META_ARCHITECTURE: "CenterNet"
+  WEIGHTS: "detectron2://COCO-Detection/faster_rcnn_R_50_FPN_3x/137849458/model_final_280758.pkl"
+  SIZE_DIVISIBILITY: 32
+  BACKBONE:
+    NAME: "build_resnet_fpn_backbone"
+    FREEZE_AT: 10
+    FREEZE_ALL: False
+  FPN:
+    IN_FEATURES: ["res2", "res3", "res4", "res5"]
+    REPEAT: 0
+  RESNETS:
+    DEPTH: 50
+    OUT_FEATURES: ["res2", "res3", "res4", "res5"]
+    NORM: "SyncBN" # "SyncBN" "FrozenBN"
+  HEADS:
+    NAME: MultiScaleHeads
+    CONV_DIM: 64
+    NUM_CONV: 2
+    SHARED: True
+    IN_FEATURES: ["p2", "p3", "p4", "p5"] # ,
+    NORM: "GN"
+    OUTPUT_STRIDES: [4, 8, 16, 32]
+    RAF:
+      DOWN_SAMPLE_RATIO: 1
+      CONV_DIM: 64
+      NUM_CONV: 2
+INPUT:
+  GT_SCALE_AWARE: True
+  MIN_SIZE_TRAIN: (512,)
+  MAX_SIZE_TRAIN: 512
+  MIN_SIZE_TEST: 512
+  MAX_SIZE_TEST: 512
+  ADD_IGNORE: False
+  CENTER_GAUSSIAN_IOU_MIN_OVERLAPS: [0.5, 0.7, 0.9, 1.0]
+SOLVER:
+  IMS_PER_BATCH: 4
+  BASE_LR: 0.005
+RELATION:
+  RELATION_ON: True
+  USE_GT_BOX: False
+  USE_GT_OBJECT_LABEL: False
+

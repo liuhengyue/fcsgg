@@ -1,0 +1,39 @@
+_BASE_: "Quick-FCSGG-Base.yaml"
+MODEL:
+  PIXEL_STD: [57.375, 57.120, 58.395]
+  META_ARCHITECTURE: "CenterNet"
+  WEIGHTS: "detectron2://COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x/139173657/model_final_68b088.pkl"
+  BACKBONE:
+    NAME: "build_resnet_fpn_p2_backbone"
+    FREEZE_AT: -1
+    FREEZE_ALL: False
+  RESNETS:
+    OUT_FEATURES: ["res2", "res3", "res4", "res5"]
+    STRIDE_IN_1X1: False  # this is a C2 model
+    NUM_GROUPS: 32
+    WIDTH_PER_GROUP: 8
+    DEPTH: 101
+    NORM: "FrozenBN" # "SyncBN" "FrozenBN"
+  FPN:
+    IN_FEATURES: ["res2", "res3", "res4", "res5"]
+  NECKS:
+    ENABLED: False
+  HEADS:
+    NAME: CenternetRelationHeads
+    IN_FEATURES: ["p2"]
+    CONV_DIM: 64
+    NUM_CONV: 4
+    NUM_STAGES: 1
+    NORM: "SyncBN"
+    FREEZE: []
+    RAF:
+      DILATION: 1
+      LAST_DEFORM_ON: False
+    NUM_CLASSES: 150
+    LOSS:
+      HEATMAP_LOSS_TYPE: "efficient_focal_loss"
+      WH_WEIGHT: 0.1
+RELATION:
+  RELATION_ON: False
+  USE_GT_BOX: False
+  USE_GT_OBJECT_LABEL: False

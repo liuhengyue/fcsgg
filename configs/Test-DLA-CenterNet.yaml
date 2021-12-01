@@ -1,0 +1,42 @@
+MODEL:
+  META_ARCHITECTURE: "CenterNet"
+  BACKBONE:
+    NAME: "build_dla_backbone"
+    FREEZE_AT: -1
+    WEIGHTS: "https://drive.google.com/uc?export=download&id=1pl_-ael8wERdUREEnaIfqOV_VF2bEVRT"
+  DLA:
+    WEIGHTS: "http://dl.yf.io/dla/models/imagenet/dla34-ba72cf86.pth"
+    CONV_BODY: "DLA34"
+    FREEZE: False
+    NORM: "SyncBN"
+  NECKS:
+    ENABLED: True
+    NAME: DLAUpSampleNeck
+    IN_FEATURES: ["level2", "level3", "level4", "level5"]
+  HEADS:
+    NUM_CLASSES: 150
+    IN_FEATURES: ["dla_fused"]
+    LOSS:
+      HEATMAP_LOSS_TYPE: "efficient_focal_loss"
+DATASETS:
+  TRAIN: ("vg_train",)
+#  VAL: ("vg_val",)
+  TEST: ("vg_train",)
+DATALOADER:
+  NUM_WORKERS: 1
+SOLVER:
+  IMS_PER_BATCH: 1
+  BASE_LR: 0.005
+  WARMUP_FACTOR: 0.01
+  WARMUP_ITERS: 100
+  STEPS: (20000, 40000)
+  MAX_ITER: 60000
+  CHECKPOINT_PERIOD: 5000
+INPUT:
+  MIN_SIZE_TRAIN: (256,) #(640, 672, 704, 736, 768, 800)
+  MAX_SIZE_TRAIN: 512
+  MIN_SIZE_TEST: 256
+  MAX_SIZE_TEST: 512
+OUTPUT_DIR: "./output/vg/test_dla34"
+SEED: 2020
+VERSION: 2

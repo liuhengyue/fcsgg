@@ -1,0 +1,33 @@
+_BASE_: "Quick-FCSGG-Base.yaml"
+MODEL:
+  META_ARCHITECTURE: "CenterNet"
+  HRNET:
+    WEIGHTS: "output/FasterR-CNN-HR48-2x.pth"
+#    NORM: "FrozenBN"
+    STAGE2:
+      NUM_CHANNELS: [48, 96]
+    STAGE3:
+      NUM_CHANNELS: [48, 96, 192]
+    STAGE4:
+      NUM_CHANNELS: [48, 96, 192, 384]
+  BACKBONE:
+    NAME: "build_hrnet_backbone"
+  NECKS:
+    ENABLED: False
+  HEADS:
+    NAME: UnionHead
+    CONV_DIM: 256
+    NUM_CONV: 4
+    NORM: "SyncBN"
+    IN_FEATURES: ["p1"]
+    OUTPUT_STRIDES: [4]
+#    NORM: "FrozenBN"
+RELATION:
+  RELATION_ON: True
+INPUT:
+  GT_SCALE_AWARE: False
+  MIN_SIZE_TRAIN: (512,)
+  MAX_SIZE_TRAIN: 512
+  MIN_SIZE_TEST: 512
+  MAX_SIZE_TEST: 512
+  CENTER_GAUSSIAN_IOU_MIN_OVERLAPS: [0.7]

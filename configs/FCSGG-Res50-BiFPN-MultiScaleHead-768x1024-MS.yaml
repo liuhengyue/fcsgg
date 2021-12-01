@@ -1,0 +1,51 @@
+_BASE_: "FCSGG-Base.yaml"
+MODEL:
+  META_ARCHITECTURE: "CenterNet"
+  WEIGHTS: "detectron2://COCO-Detection/faster_rcnn_R_50_FPN_3x/137849458/model_final_280758.pkl"
+  SIZE_DIVISIBILITY: 128
+  BACKBONE:
+    NAME: "build_resnet_bifpn_backbone"
+    FREEZE_AT: 2
+    FREEZE_ALL: False
+  FPN:
+    IN_FEATURES: ["res3", "res4", "res5"]
+    REPEAT: 3
+  RESNETS:
+    DEPTH: 50
+    OUT_FEATURES: ["res2", "res3", "res4", "res5"]
+    NORM: "SyncBN" # "SyncBN" "FrozenBN"
+  HEADS:
+    NAME: MultiScaleHeads
+    CONV_DIM: 256
+    NUM_CONV: 2
+    SHARED: True
+    IN_FEATURES: ["p3", "p4", "p5", "p6", "p7"] # ,
+    NUM_CLASSES: 150
+    NORM: "SyncBN"
+    OUTPUT_STRIDES: [8, 16, 32, 64, 128]
+    RAF:
+      KERNEL_SIZE: 3
+      DILATION: 1
+      LAST_DEFORM_ON: False
+INPUT:
+  MIN_SIZE_TRAIN: (512, 640, 768)
+  MAX_SIZE_TRAIN: 1024
+  MIN_SIZE_TEST: 768
+  MAX_SIZE_TEST: 1024
+  ADD_IGNORE: False
+  CENTER_GAUSSIAN_IOU_MIN_OVERLAPS: [0.5, 0.7, 0.8, 0.9, 1.0]
+  CROP:
+    ENABLED: False
+    SIZE: [0.8, 0.8]
+RELATION:
+  RELATION_ON: True
+SOLVER:
+  IMS_PER_BATCH: 8
+  BASE_LR: 0.01
+  WARMUP_FACTOR: 0.01
+  WARMUP_ITERS: 0
+  STEPS: (80000, 100000)
+  MAX_ITER: 120000
+  CHECKPOINT_PERIOD: 5000
+OUTPUT_DIR: "./output/vg/fcsgg_res50_bifpn_multiscalehead_768x1024_ms"
+

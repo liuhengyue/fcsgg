@@ -1,0 +1,60 @@
+_BASE_: "Quick-FCSGG-Base.yaml"
+MODEL:
+  META_ARCHITECTURE: "CenterNet"
+  WEIGHTS: ""
+  BACKBONE:
+    NAME: "build_triad_net"
+    FREEZE_AT: -1
+    FREEZE_ALL: False
+  SIZE_DIVISIBILITY: 64
+  TRIAD:
+    OUT_FEATURES: ["decoder_0", "decoder_1"]
+    NUM_BRANCHES: 2
+    ENCODER_BLOCKS: 1
+    DECODER_BLOCKS: [1, 1]
+    NUM_FEATURES: 256
+    NORM: "SyncBN"
+  NECKS:
+    ENABLED: False
+  HEADS:
+    NAME: DualDecoderHeads
+    IN_FEATURES: ["decoder_0", "decoder_1"]
+    CONV_DIM: 64
+    NUM_CONV: 4
+    NORM: "SyncBN"
+    FREEZE: []
+    OUTPUT_STRIDES: [4]
+    RAF:
+      DILATION: 1
+      LAST_DEFORM_ON: False
+      CLASS_BALANCE: False
+    NUM_CLASSES: 150
+DATASETS:
+  TRAIN: ("vg_train",)
+#  VAL: ("vg_val",)
+  TEST: ("vg_train",)
+DATALOADER:
+  NUM_WORKERS: 4
+SOLVER:
+  CLIP_GRADIENTS:
+    ENABLED: True
+    CLIP_VALUE: 5.0
+  IMS_PER_BATCH: 4
+  BASE_LR: 0.005
+  WARMUP_FACTOR: 0.01
+  WARMUP_ITERS: 100
+  STEPS: (500,)
+  MAX_ITER: 1000
+  CHECKPOINT_PERIOD: 500
+INPUT:
+  MIN_SIZE_TRAIN: (512,)
+  MAX_SIZE_TRAIN: 512
+  MIN_SIZE_TEST: 512
+  MAX_SIZE_TEST: 512
+  CENTER_GAUSSIAN_IOU_MIN_OVERLAPS: [0.7]
+  GT_SCALE_AWARE: False
+  RAF_STRIDE_RATIO: 1
+RELATION:
+  RELATION_ON: True
+  USE_GT_BOX: False
+  USE_GT_OBJECT_LABEL: False

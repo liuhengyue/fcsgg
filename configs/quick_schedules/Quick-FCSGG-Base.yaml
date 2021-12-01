@@ -1,0 +1,31 @@
+_BASE_: "../FCSGG-Base.yaml"
+DATASETS:
+  TRAIN: ("vg_debug",)
+#  VAL: ("vg_val",)
+  TEST: ("vg_debug",)
+DATALOADER:
+  NUM_WORKERS: 4
+SOLVER:
+  IMS_PER_BATCH: 4
+  BASE_LR: 0.005
+  WARMUP_FACTOR: 0.01
+  WARMUP_ITERS: 100
+  STEPS: (500,)
+  MAX_ITER: 1000
+  CHECKPOINT_PERIOD: 500
+INPUT:
+  CROP:
+    ENABLED: False
+    SIZE: [ 0.8, 0.8 ]
+  FLIP: False
+  MIN_SIZE_TRAIN: (512,)
+  MAX_SIZE_TRAIN: 512
+  MIN_SIZE_TEST: 512
+  MAX_SIZE_TEST: 512
+  ADD_IGNORE: False
+RELATION:
+  RELATION_ON: True
+  USE_GT_BOX: False
+  USE_GT_OBJECT_LABEL: False
+OUTPUT_DIR: "./output/vg/quick_schedules/test"
+

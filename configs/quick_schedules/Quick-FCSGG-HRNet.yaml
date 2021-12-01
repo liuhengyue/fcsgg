@@ -1,0 +1,72 @@
+_BASE_: "Quick-FCSGG-Base.yaml"
+MODEL:
+  SIZE_DIVISIBILITY: 128
+  META_ARCHITECTURE: "CenterNet"
+  HRNET:
+    WEIGHTS: "output/FasterR-CNN-HR32-3x.pth"
+    FINAL_STAGE_MULTISCALE: True
+    UPSAMPLE_MODE: "bilinear"
+    OUT_FEATURES: ["hr2", "hr3", "hr4", "hr5"]
+#    NORM: "FrozenBN"
+  BACKBONE:
+    NAME: "build_hrnet_backbone"
+    FREEZE_ALL: False
+  NECKS:
+    ENABLED: True
+    NAME: HRFPN
+    IN_FEATURES: ["hr2", "hr3", "hr4", "hr5"]
+    OUT_CHANNELS: [256]
+    UPSAMPLE_MODE: "bilinear"
+    NORM: "SyncBN"
+    CONV_STRIDE: 2
+    OUT_STRIDES: [8, 16, 32, 64, 128]
+  HEADS:
+    NAME: MultiScaleSwitchNormHeads
+    CONV_DIM: 256
+    NUM_CONV: 4
+    NORM: "SyncBN"
+    IN_FEATURES: ["p3", "p4", "p5", "p6", "p7"]
+    OUTPUT_STRIDES: [8, 16, 32, 64, 128]
+    BN_MOMENTUM: 0.01
+    RAF:
+      KERNEL_SIZE: 3
+      DILATION: 1
+      LAST_DEFORM_ON: False
+      DOWN_SAMPLE_RATIO: 1
+      CONV_DIM: 512
+      NUM_CONV: 4
+      SPLIT: True
+      LOSS_TYPE: ("l1", "neg", "normal", 10)
+      ADD_RELATIONESS: False
+    LOSS:
+      WH_WEIGHT: 0.1
+      RAF_WEIGHT: 1.0
+#    NORM: "FrozenBN"
+RELATION:
+  RELATION_ON: True
+  USE_GT_BOX: False
+  USE_GT_OBJECT_LABEL: False
+  RELATION_ONLY: False
+SOLVER:
+  IMS_PER_BATCH: 4
+  BASE_LR: 0.005
+  WARMUP_FACTOR: 0.01
+  WARMUP_ITERS: 100
+  STEPS: (500,)
+  MAX_ITER: 1000
+  CHECKPOINT_PERIOD: 500
+INPUT:
+  CROP:
+    ENABLED: False
+    SIZE: [ 0.8, 0.8 ]
+  GT_SCALE_AWARE: True
+  USE_FIX_SIZE: True
+  GT_REGRESSION_SCALE_AWARE: False
+  MIN_SIZE_TRAIN: (512,)
+  MAX_SIZE_TRAIN: 640
+  MIN_SIZE_TEST: 512
+  MAX_SIZE_TEST: 640
+  CENTER_GAUSSIAN_IOU_MIN_OVERLAPS: [0.5, 0.5, 0.5, 0.5, 0.5]
+#DATASETS:
+#  TRAIN: ("vg_train",)
+#  TEST: ("vg_minitest",)

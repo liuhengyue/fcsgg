@@ -1,0 +1,64 @@
+_BASE_: "Quick-FCSGG-Base.yaml"
+MODEL:
+  META_ARCHITECTURE: "CenterNet"
+  HRNET:
+    WEIGHTS: "output/FasterR-CNN-HR32-3x.pth"
+    FINAL_STAGE_MULTISCALE: True
+    UPSAMPLE_MODE: "bilinear"
+#    NORM: "FrozenBN"
+  BACKBONE:
+    NAME: "build_hrnet_backbone"
+    FREEZE_ALL: False
+  NECKS:
+    ENABLED: True
+    NAME: ConcatNeck
+    IN_FEATURES: ["hr2", "hr3", "hr4", "hr5"]
+    UPSAMPLE_MODE: "bilinear"
+  HEADS:
+    NAME: CenternetRelationHeads
+    CONV_DIM: 128
+    NUM_CONV: 4
+    NUM_STAGES: 3
+    NORM: "SyncBN"
+    IN_FEATURES: ["cat"]
+    OUTPUT_STRIDES: [4]
+    RAF:
+      KERNEL_SIZE: 3
+      DILATION: 1
+      LAST_DEFORM_ON: False
+      DOWN_SAMPLE_RATIO: 2
+      CONV_DIMS: [256, 256, 256, 256]
+      NUM_CONV: 4
+      CONV_DIM: 128
+      SPLIT: True
+      ADD_COORD: True
+      LOSS_TYPE: ("l1", "all", "normal", 1.0)
+    LOSS:
+      WH_WEIGHT: 0.1
+      RAF_WEIGHT: 1.0
+#    NORM: "FrozenBN"
+RELATION:
+  RELATION_ON: True
+  USE_GT_BOX: False
+  USE_GT_OBJECT_LABEL: False
+SOLVER:
+  IMS_PER_BATCH: 4
+  BASE_LR: 0.01
+  WARMUP_FACTOR: 0.01
+  WARMUP_ITERS: 100
+  STEPS: (500,)
+  MAX_ITER: 2000
+  CHECKPOINT_PERIOD: 500
+INPUT:
+  CROP:
+    ENABLED: False
+    SIZE: [ 0.5, 0.5 ]
+  GT_SCALE_AWARE: False
+  MIN_SIZE_TRAIN: (512,)
+  MAX_SIZE_TRAIN: 512
+  MIN_SIZE_TEST: 512
+  MAX_SIZE_TEST: 512
+  CENTER_GAUSSIAN_IOU_MIN_OVERLAPS: [0.5]
+#DATASETS:
+#  TRAIN: ("vg_minitrain",)
+#  TEST: ("vg_minitest",)

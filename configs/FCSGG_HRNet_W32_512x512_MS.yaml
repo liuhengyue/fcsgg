@@ -1,0 +1,36 @@
+_BASE_: "FCSGG-Base.yaml"
+MODEL:
+  META_ARCHITECTURE: "CenterNet"
+  HRNET:
+    WEIGHTS: "output/FasterR-CNN-HR32-3x.pth"
+    FINAL_STAGE_MULTISCALE: True
+    NORM: "SyncBN"
+    UPSAMPLE_MODE: "bilinear"
+  BACKBONE:
+    NAME: "build_hrnet_backbone"
+  NECKS:
+    ENABLED: True
+    NAME: ConcatNeck
+    UPSAMPLE_MODE: "bilinear"
+    IN_FEATURES: ["hr2", "hr3", "hr4", "hr5"]
+  HEADS:
+    NAME: CenternetRelationHeads
+    CONV_DIM: 256
+    NUM_CONV: 2
+    NORM: "SyncBN"
+    IN_FEATURES: ["cat"]
+    OUTPUT_STRIDES: [4]
+    LOSS:
+      WH_WEIGHT: 0.1
+RELATION:
+  RELATION_ON: True
+INPUT:
+  GT_SCALE_AWARE: False
+SOLVER:
+  IMS_PER_BATCH: 72 # linear scale these
+  BASE_LR: 0.001 # linear scale these
+  WARMUP_FACTOR: 0.01
+  WARMUP_ITERS: 100
+  STEPS: (40000,) #(40000, 80000) # linear scale these
+  MAX_ITER: 90000 # linear scale these
+OUTPUT_DIR: "./output/vg/fcsgg_hrnet_w32_512x512_ms"

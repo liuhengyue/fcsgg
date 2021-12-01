@@ -1,0 +1,46 @@
+MODEL:
+  META_ARCHITECTURE: "CenterNet"
+  WEIGHTS: "detectron2://COCO-Detection/faster_rcnn_R_50_FPN_3x/137849458/model_final_280758.pkl"
+  BACKBONE:
+    NAME: "build_resnet_fpn_backbone"
+    FREEZE_AT: 2
+  RESNETS:
+    DEPTH: 50
+    OUT_FEATURES: ["res2", "res3", "res4", "res5"]
+    NORM: "FrozenBN" # "SyncBN" "FrozenBN"
+  FPN:
+    IN_FEATURES: ["res2", "res3", "res4", "res5"]
+  NECKS:
+    ENABLED: True
+    NAME: DLAUpSampleNeck
+    IN_FEATURES: ["p2", "p3", "p4", "p5"]
+    NORM: "SyncBN"
+  HEADS:
+    NAME: CenternetHeads
+    NUM_CLASSES: 150
+    IN_FEATURES: ["dla_fused"]
+    LOSS:
+      HEATMAP_LOSS_TYPE: "efficient_focal_loss"
+      WH_WEIGHT: 0.1
+DATASETS:
+  TRAIN: ("vg_train",)
+#  VAL: ("vg_val",)
+  TEST: ("vg_test",)
+DATALOADER:
+  NUM_WORKERS: 4
+SOLVER:
+  IMS_PER_BATCH: 16
+  BASE_LR: 0.002
+  WARMUP_FACTOR: 0.01
+  WARMUP_ITERS: 0
+  STEPS: (50000, 70000)
+  MAX_ITER: 90000
+  CHECKPOINT_PERIOD: 5000
+INPUT:
+  MIN_SIZE_TRAIN: (600,) #(256, 320, 384, 448, 512, 576, 640) #(640, 672, 704, 736, 768, 800)
+  MAX_SIZE_TRAIN: 1000
+  MIN_SIZE_TEST: 256
+  MAX_SIZE_TEST: 512
+OUTPUT_DIR: "./output/vg/resnet50_fpn_600x1000"
+SEED: 2020
+VERSION: 2
