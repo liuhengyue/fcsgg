@@ -78,15 +78,15 @@ The correct structure of files should be
 
 ```
 fcsgg/
-      |---- datasets/
-         |---- vg/
-            |---- VG-SGG-with-attri.h5 # `roidb_file`, HDF5 containing the GT boxes, classes, and relationships
-            |---- VG-SGG-dicts.json    # `dict_file`, JSON Contains mapping of classes/relationships to words
-            |---- image_data.json      # `image_file`, HDF5 containing image filenames
-            |---- VG_100K              # `img_dir`, contains all the images
-               |---- 1.jpg
-               |---- 2.jpg
-               |---- ...
+  |-- datasets/
+     |-- vg/
+        |-- VG-SGG-with-attri.h5         # `roidb_file`, HDF5 containing the GT boxes, classes, and relationships
+        |-- VG-SGG-dicts-with-attri.json # `dict_file`, JSON Contains mapping of classes/relationships to words
+        |-- image_data.json              # `image_file`, HDF5 containing image filenames
+        |-- VG_100K                      # `img_dir`, contains all the images
+           |-- 1.jpg
+           |-- 2.jpg
+           |-- ...
 
 ```
 
