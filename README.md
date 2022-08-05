@@ -70,7 +70,7 @@ rm datasets/vg/images.zip
 rm datasets/vg/images2.zip
 ```   
   
-2. Download the [scene graphs](https://onedrive.live.com/embed?cid=22376FFAD72C4B64&resid=22376FFAD72C4B64%21779871&authkey=AA33n7BRpB1xa3I) and extract them to `datasets/vg/VG-SGG-with-attri.h5`.
+2. Download the [scene graphs](https://1drv.ms/u/s!AmRLLNf6bzcir8xf9oC3eNWlVMTRDw?e=63t7Ed) and extract them to `datasets/vg/VG-SGG-with-attri.h5`.
 
 If use other paths, one may need to modify the related paths in file [visual_genome.py](fcsgg/data/datasets/visual_genome.py).
 
